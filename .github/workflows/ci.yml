@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Test Lua syntax
+        run: |
+          nvim --headless -u NONE -c "set rtp+=." \
+            -c "lua require('expo-status')" \
+            -c "lua require('expo-status.config')" \
+            -c "lua require('expo-status.lualine')" \
+            -c "lua require('overseer.component.expo_status')" \
+            -c "lua require('overseer.template.expo')" \
+            -c "q"
