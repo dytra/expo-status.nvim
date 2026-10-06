@@ -19,9 +19,15 @@ jobs:
           neovim: true
           version: stable
 
+      - name: Checkout overseer.nvim dependency
+        uses: actions/checkout@v4
+        with:
+          repository: stevearc/overseer.nvim
+          path: deps/overseer.nvim
+
       - name: Test Lua syntax
         run: |
-          nvim --headless -u NONE -c "set rtp+=." \
+          nvim --headless -u NONE -c "set rtp+=.,./deps/overseer.nvim" \
             -c "lua require('expo-status')" \
             -c "lua require('expo-status.config')" \
             -c "lua require('expo-status.lualine')" \

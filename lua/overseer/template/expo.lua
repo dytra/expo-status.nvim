@@ -50,12 +50,13 @@ local function detect_package_manager(dir, preferred)
     return preferred
   end
 
-  -- Check current dir and parents for lockfiles
-  local check_dirs = { dir }
-  local root = vim.fs.root(dir, { ".git" })
+  -- Check root workspace first in monorepos, then project dir
+  local check_dirs = {}
+  local root = vim.fs.root(dir, { "pnpm-workspace.yaml", ".git" })
   if root and root ~= dir then
     table.insert(check_dirs, root)
   end
+  table.insert(check_dirs, dir)
 
   for _, d in ipairs(check_dirs) do
     if vim.uv.fs_stat(vim.fs.joinpath(d, "pnpm-lock.yaml")) then
@@ -162,6 +163,14 @@ local function build_cmd(dir)
   local cfg = get_config()
   local pm = detect_package_manager(dir, cfg.package_manager)
   local script = cfg.start_script or "start"
+
+  -- Windows: run package manager directly via libuv without bash/exec wrapper
+  if vim.fn.has("win32") == 1 then
+    if pm == "yarn" then
+      return { "yarn", script }
+    end
+    return { pm, "run", script }
+  end
 
   local exec_cmd = string.format("exec %s run %s", pm, script)
   if pm == "yarn" then

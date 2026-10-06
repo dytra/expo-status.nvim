@@ -166,12 +166,20 @@ vim.api.nvim_create_autocmd("BufWritePost", {
     if (not file_path or file_path == "") and ev.buf then
       file_path = vim.api.nvim_buf_get_name(ev.buf)
     end
-    if file_path and active_task and active_task.cwd and vim.startswith(file_path, active_task.cwd) then
-      set_status("starting")
+    if file_path and active_task and active_task.cwd then
+      local norm_file = vim.fs.normalize(file_path)
+      local norm_cwd = vim.fs.normalize(active_task.cwd)
+      if vim.fn.has("win32") == 1 then
+        norm_file = norm_file:lower()
+        norm_cwd = norm_cwd:lower()
+      end
+      if vim.startswith(norm_file, norm_cwd) then
+        set_status("starting")
 
-      -- Signal Metro to reload and rebundle the updated file immediately
-      if active_task.strategy and active_task.strategy.job_id then
-        pcall(vim.api.nvim_chan_send, active_task.strategy.job_id, "r")
+        -- Signal Metro to reload and rebundle the updated file immediately
+        if active_task.strategy and active_task.strategy.job_id then
+          pcall(vim.api.nvim_chan_send, active_task.strategy.job_id, "r")
+        end
       end
     end
   end,

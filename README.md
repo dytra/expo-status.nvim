@@ -52,6 +52,7 @@ NORMAL │  main │ app/index.tsx │  EXPO │ typescript │ 34:12
 - **🟢 NVM / Node Version Management**: Runs tasks with a specific Node version (e.g. Node 22 via `nvm`) without needing shell hooks or manual environment switches.
 - **🎨 Native Lualine Component**: Drop-in statusline helper with dynamic colors linked to `DiagnosticOk`, `DiagnosticError`, `DiagnosticWarn`, and `DiagnosticInfo`.
 - **⌨️ Interactive Control**: `:ExpoReload` command to trigger instant Metro reload (`r`) anytime without focusing the terminal window.
+- **🪟 Cross-Platform**: First-class support for Windows, macOS, and Linux without external shell dependencies on Windows.
 
 ---
 
@@ -76,11 +77,19 @@ return {
       "nvim-lualine/lualine.nvim",
     },
     opts = {
-      node_version = "22", -- or false to use system node
+      node_version = false, -- false to use system node (or "22" with nvm on Unix)
       auto_reload_on_save = true,
     },
     keys = {
       { "<leader>or", "<cmd>ExpoReload<cr>", desc = "Expo: reload Metro" },
+    },
+  },
+
+  -- Ensure Overseer includes the expo template if templates are customized
+  {
+    "stevearc/overseer.nvim",
+    opts = {
+      templates = { "builtin", "expo" },
     },
   },
 

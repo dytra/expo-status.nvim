@@ -1,1 +1,1 @@
-return require("expo-status")
+return require("expo-status.init")
